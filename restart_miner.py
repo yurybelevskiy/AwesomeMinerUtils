@@ -8,13 +8,29 @@ import socket
 import logging
 import os
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='logs/restart_miner.log',level=logging.INFO)
+"""
+Gets executed as a result of "Detect Offline" AwesomeMiner trigger.
+The purpose is to restart a smart plug if associated miner is offline.
+If the failed miner doesn't have a smart plug, exits.
+"""
+
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 #in seconds
 DELAY = 10.0
 
 def load_plug_file(path):
+	""" Loads a mapping from miner IP addresses to smart plug IP addresses
+
+	Args:
+		path: path to file storing the mapping
+
+	Returns:
+		dictionary where key is a miner IP address and corresponding value is a smart plug IP address.
+		If functions fails to find or parse given file, returns empty dictionary. 
+
+	"""
 	ip_addresses = {}
 	try:
 		with open(path) as f:
@@ -37,6 +53,12 @@ def load_plug_file(path):
 	return ip_addresses
 
 def restart_plug(ip_addr, delay):
+	""" Restarts a smart plug: powers it OFF and, then, ON
+
+	Args:
+		ip_addr: IP address of the smart plug 
+		delay: the time to wait before powering plug ON after it was powered OFF  
+	"""
 	try:
 		plug = SmartPlug(ip_addr)
 		if plug.state == "ON":
@@ -47,10 +69,10 @@ def restart_plug(ip_addr, delay):
 		logger.info("Restart successful!")
 	except SmartDeviceException:
 		#TODO: add retrying to communicate again after timeout, if after multiple retry attempts it still failes, send email or Telegram
-		logger.info("Failed to communicate with plug at IP address %s! Exiting...", ip_addr)
-		sys.exit(0)
+		logger.info("Failed to communicate with plug at IP address %s!", ip_addr)
 
 def main():
+	#TODO: add proper description of arguments
 	if len(sys.argv) != 3:
 		logger.error("Invalid number of arguments passed, expected 2 arguments! Exiting...")
 		sys.exit(0)

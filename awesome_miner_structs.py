@@ -1,7 +1,16 @@
 import utils
 from abc import ABC,abstractmethod
 
+"""
+Classes that encapsulate AwesomeMiner data types 
+"""
+
 class Miner(object):
+
+	"""
+	Top-level class that represent a mining device of any type.
+	Can be ASIC, GPU farm or any other AwesomeMiner supported miner type.
+	"""
 
 	def __init__(self, json):
 		self.name = json['name']
@@ -23,7 +32,10 @@ class Miner(object):
 	def all_devices_running(self):
 		pass
 
+
 class GPUMiner(Miner):
+
+	""" Subclass of Miner representing GPU-based miner """
 
 	def __init__(self, json):
 		super(GPUMiner, self).__init__(json)
@@ -39,13 +51,9 @@ class GPUMiner(Miner):
 	def all_devices_running(self, num_devices):
 		return self.device_list.get_num_devices() == num_devices
 
-class ASICMiner(Miner):
-
-	def __init__(self, json):
-		super(ASICMiner, self).__init__(json)
-		self.device_list = DeviceList(json['asicList'])
-
 class Pangolin(GPUMiner):
+
+	""" Specific GPUMiner subclass representing Pangolin GPU miners """
 
 	NUM_GPUS = 8
 	#in MHz
@@ -63,6 +71,8 @@ class Pangolin(GPUMiner):
 
 class Ferm(GPUMiner):
 
+	""" Specific GPUMiner subclass representing Ferm GPU miners (custom-built, 6 GPU rigs) """
+
 	NUM_GPUS = 6
 	#in MHz
 	DEFAULT_MEMORY_CLOCK = 3847
@@ -77,7 +87,19 @@ class Ferm(GPUMiner):
 	def all_devices_running(self):
 		return super(Pangolin, self).all_devices_running(Ferm.NUM_GPUS)
 
+
+class ASICMiner(Miner):
+	
+	""" Subclass of Miner representing ASIC-based miner """
+
+	def __init__(self, json):
+		super(ASICMiner, self).__init__(json)
+		self.device_list = DeviceList(json['asicList'])
+
+
 class StatusInfo(object):
+
+	""" Represents AwesomeMiner web API 'statusInfo' object """
 
 	def __init__(self, json):
 		self.status_display = json['statusDisplay']
@@ -85,12 +107,16 @@ class StatusInfo(object):
 
 class SpeedInfo(object):
 
+	""" Represents AwesomeMiner web API 'speedInfo' object """
+
 	def __init__(self, json):
 		self.hashrate = json['hashrate']
 		self.hashrate_val = json['hashrateValue']
 		self.avg_hashrate = json['avgHashrate']
 
 class DeviceInfo(object):
+
+	""" Represents AwesomeMiner web API 'deviceInfo' object """
 
 	def __init__(self, json):
 		self.device_type = json['deviceType']
@@ -101,12 +127,16 @@ class DeviceInfo(object):
 
 class CoinInfo(object):
 
+	""" Represents AwesomeMiner web API 'coinInfo' object """
+
 	def __init__(self, json):
 		self.name = json['displayName']
 		self.daily_revenue = json['revenuePerDay']
 		self.daily_revenue_val = json['revenuePerDayValue']
 
 class DeviceList(object):
+
+	""" Represents AwesomeMiner web API 'deviceList' object """
 
 	def __init__(self, json):
 		device_list = list()
@@ -120,6 +150,8 @@ class DeviceList(object):
 
 class Device(object):
 
+	""" Top-level object representing all types of hardware devices available within AwesomeMiner web API """
+
 	def __init__(self, json):
 		self.name = json['name']
 		self.status_info = StatusInfo(json['statusInfo'])
@@ -128,15 +160,21 @@ class Device(object):
 
 class GPU(Device):
 
+	""" Subclass of Device representing GPU device type """
+
 	def __init__(self, json):
 		super(GPU, self).__init__(json)
 
 class ASIC(Device):
 
+	""" Subclass of Device representing ASIC device type """
+
 	def __init__(self, json):
 		super(ASIC, self).__init__(json)
 
 class NotificationList(object):
+
+	""" Represents AwesomeMiner web API 'notificationList' object """
 
 	def __init__(self, json):
 		notifications = list()
@@ -145,9 +183,9 @@ class NotificationList(object):
 			notifications.append(notification)
 		self.notifications = self.filter_duplicate_notifications(notifications)
 
-	'''
+	"""
 	Notification is considered as a duplicate if there is another notification with same 'miner_name', 'source' and 'message' 
-	'''
+	"""
 	def filter_duplicate_notifications(self, notifications):
 		filtered_notifications = list()
 		for notification in notifications:
@@ -160,6 +198,8 @@ class NotificationList(object):
 
 
 class Notification(object):
+
+	""" Represents AwesomeMiner web API element of 'notificationList' """
 
 	def __init__(self, json):
 		self.miner_name = json['minerName']

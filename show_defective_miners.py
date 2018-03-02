@@ -5,23 +5,28 @@ import logging
 from awesome_miner_utils import collect_devices_from_groups, collect_notifications_data, load_config_file
 from awesome_miner_structs import Pangolin, Ferm
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='show_defective_miners.log',level=logging.INFO)
-logger = logging.getLogger(__name__)
+"""
+Prints list of malfunctioning GPU minersand corresponding AwesomeMiner notifications in console.
+A miner is consider malfunctioning if one of the following holds:
+- not all GPUs are running
+- at least one GPU is running on default memory clock
+- miner is offline
+"""
 
 def main():
 	if len(sys.argv) != 2:
-		logger.error("Invalid number of arguments passed, expected 1 argument! Exiting...")
+		print("Invalid number of arguments passed, expected 1 argument! Exiting...")
 		sys.exit(0)
 	# load configuration file
 	config_values = load_config_file(sys.argv[1])
 	if config_values is None:
-		logger.error("Configuration file at %s doesn't exist or has invalid structure! Exiting...", sys.argv[1])
+		print("Configuration file at %s doesn't exist or has invalid structure! Exiting...", sys.argv[1])
 		sys.exit(0)
 	if config_values["port"] is None:
-		logger.error("Configuration file at %s doesn't contain AwesomeMiner port number! Exiting...", sys.argv[1])
+		print("Configuration file at %s doesn't contain AwesomeMiner port number! Exiting...", sys.argv[1])
 		sys.exit(0)
 	if config_values["pc_name"] is None:
-		logger.error("Configuration file at %s doesn't contain PC name! Exiting...", sys.argv[1])
+		print("Configuration file at %s doesn't contain PC name! Exiting...", sys.argv[1])
 		sys.exit(0)
 	# collect information about Pangolins
 	gpu_miners = collect_devices_from_groups(config_values["pc_name"], int(config_values["port"]), [Pangolin.GROUP, Ferm.GROUP])
@@ -38,7 +43,7 @@ def main():
 		else:
 			print(gpu_miner.name + " - " + gpu_miner.status_info.status_display)
 	# collect notifications information
-	notification_list = collect_notifications_data(args.pc_name[0], PORT)
+	notification_list = collect_notifications_data(config_values["pc_name"], int(config_values["port"]))
 	pang_notifications = notification_list.get_notifications_with_prefix(Pangolin.GROUP)
 	ferm_notifications = notification_list.get_notifications_with_prefix(Ferm.GROUP)
 	if len(pang_notifications) > 0 or len(ferm_notifications) > 0:

@@ -6,12 +6,24 @@ import os.path
 import configparser
 from multiprocessing import Queue
 
+"""
+Helper file that contains utility functions to intetact with AwesomeMiner Web API
+"""
+
 logger = logging.getLogger(__name__)
 
-'''
-
-'''
 def collect_all_devices(pc_name, awesome_miner_port):
+	""" Collects all miners registered with AwesomeMiner instance
+
+	Args:
+		pc_name: name of PC where AwesomeMiner is running on	
+		awesome_miner_port: port to which AwesomeMiner API listens
+
+	Returns:
+		a list of Miner instances, each representing single miner registered
+		with the AwesomeMiner instance if executed successfully, otherwise, an empty list
+
+	"""
 	request_url = "http://" + str(pc_name) + ":" + str(awesome_miner_port) + "/api/miners"
 	response = requests.get(request_url)
 	miners = list()
@@ -27,10 +39,23 @@ def collect_all_devices(pc_name, awesome_miner_port):
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)
 		return miners
 
-'''
-
-'''
 def collect_devices_from_groups(pc_name, awesome_miner_port, groups):
+	""" Collects all miners registered within the given AwesomeMiner group
+
+	For example, if multiple ASIC types are registered within AwesomeMiner, each is likely to
+	belong to different group i.e. "AntMiner S9" group or "AntMiner L3+" group.
+	To collect only devices belonging to specific group, this function is to be used.
+
+	Args: 
+		pc_name: name of PC where AwesomeMiner is running on
+		awesome_miner_port: port to which AwesomeMiner API listens
+		groups: list of AwesomeMiner groups from which devices are to be collected 
+
+	Returns:
+		a list of specific Miner subclasses (based on the group)
+		if executed successfully, otherwise, an empty list
+
+	"""
 	request_url = "http://" + str(pc_name) + ":" + str(awesome_miner_port) + "/api/miners"
 	response = requests.get(request_url)
 	miners = list()
@@ -55,10 +80,18 @@ def collect_devices_from_groups(pc_name, awesome_miner_port, groups):
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)
 		return miners
 
-'''
-
-'''
 def get_device_by_ip(ip_addr, pc_name, awesome_miner_port):
+	""" Looks up information about miner using it's IP address 
+
+	Args:
+		ip_addr: an IP address of the miner to be looked up
+		pc_name: name of PC where AwesomeMiner is running on
+		awesome_miner_port: port to which AwesomeMiner API listens 
+
+	Returns:
+		a Miner object if executed successfully, otherwise, None 
+
+	"""
 	request_url = "http://" + str(pc_name) + ":" + str(awesome_miner_port) + "/api/miners"
 	response = requests.get(request_url)
 	if response.status_code == 200:
@@ -75,10 +108,18 @@ def get_device_by_ip(ip_addr, pc_name, awesome_miner_port):
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)
 		return None
 
-'''
-
-'''
 def get_device_by_name(device_name, pc_name, awesome_miner_port):
+	""" Looks up information about miner using it's device name
+
+	Args:
+		device name: a device name of the miner to be looked up i.e. "Pang7_7"
+		pc_name: name of PC where AwesomeMiner is running on
+		awesome_miner_port: port to which AwesomeMiner API listens 
+
+	Returns:
+		a Miner object if executed successfully, otherwise, None 
+
+	"""
 	request_url = "http://" + str(pc_name) + ":" + str(awesome_miner_port) + "/api/miners"
 	response = requests.get(request_url)
 	if response.status_code == 200:
@@ -95,10 +136,17 @@ def get_device_by_name(device_name, pc_name, awesome_miner_port):
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)
 		return None
 
-'''
-
-'''
 def collect_notifications_data(pc_name, awesome_miner_port):
+	""" Collects all pending notifications from AwesomeMiner
+
+	Args: 
+		pc_name: name of PC where AwesomeMiner is running on
+		awesome_miner_port: port to which AwesomeMiner API listens
+
+	Returns:
+		a NotificationList object if executed successfully, otherwise, None
+
+	"""
 	request_url = "http://" + str(pc_name) + ":" + str(awesome_miner_port) + "/api/notifications"
 	response = requests.get(request_url)
 	if response.status_code == 200:
@@ -107,12 +155,20 @@ def collect_notifications_data(pc_name, awesome_miner_port):
 		return notification_list
 	else:
 		logger.error("Failed to retrieve information about notifications from AwesomeMiner")
-		return list()
+		return None
 
-'''
-
-'''
 def load_config_file(path):
+	""" Loads configuration .ini file that stores AwesomeMiner web API connection parameters
+
+	Note: AwesomeMiner configuration file is expected to be in .ini format.
+
+	Args:
+		path: a path to configuration file
+
+	Returns:
+		a dictionary mapping configuration parameter names to their values if executed successfully, otherwise, None
+
+	"""
 	if not os.path.isfile(path):
 		return None
 	parser = configparser.ConfigParser()
