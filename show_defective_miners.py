@@ -1,20 +1,30 @@
 import requests
 import json
-import argparse
 import sys
-from awesome_miner_utils import collect_devices_from_groups, collect_notifications_data
+import logging
+from awesome_miner_utils import collect_devices_from_groups, collect_notifications_data, load_config_file
 from awesome_miner_structs import Pangolin, Ferm
 
-#Awesome Miner API port
-PORT = 17790
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='show_defective_miners.log',level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def main():
-	# command-line parameters parsing
-	parser = argparse.ArgumentParser(description='Displays faulty GPU miners by acquiring data from AwesomeMiner instance.')
-	parser.add_argument("-pc", "--pc_name", nargs=1, type=str, required=True, help='Name of PC where AwesomeMiner control software is running. Can be found at Awesome Miner: Main -> Options -> Web(Awesome Miner API). In \'API address\' field, the address has a format \'http://<pc_name>:<port_number>/api\'')
-	args = parser.parse_args()
+	if len(sys.argv) != 2:
+		logger.error("Invalid number of arguments passed, expected 1 argument! Exiting...")
+		sys.exit(0)
+	# load configuration file
+	config_values = load_config_file(sys.argv[1])
+	if config_values is None:
+		logger.error("Configuration file at %s doesn't exist or has invalid structure! Exiting...", sys.argv[1])
+		sys.exit(0)
+	if config_values["port"] is None:
+		logger.error("Configuration file at %s doesn't contain AwesomeMiner port number! Exiting...", sys.argv[1])
+		sys.exit(0)
+	if config_values["pc_name"] is None:
+		logger.error("Configuration file at %s doesn't contain PC name! Exiting...", sys.argv[1])
+		sys.exit(0)
 	# collect information about Pangolins
-	gpu_miners = collect_devices_from_groups(args.pc_name[0], PORT, [Pangolin.GROUP, Ferm.GROUP])
+	gpu_miners = collect_devices_from_groups(config_values["pc_name"], int(config_values["port"]), [Pangolin.GROUP, Ferm.GROUP])
 	if len(gpu_miners):
 		print("********** FAULTY GPU MINERS **********")
 	for gpu_miner in gpu_miners:

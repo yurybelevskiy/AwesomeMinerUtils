@@ -2,6 +2,8 @@ from awesome_miner_structs import Miner, Pangolin, Ferm, ASICMiner, Notification
 import logging
 import requests
 import json
+import os.path
+import configparser
 from multiprocessing import Queue
 
 logger = logging.getLogger(__name__)
@@ -106,3 +108,19 @@ def collect_notifications_data(pc_name, awesome_miner_port):
 	else:
 		logger.error("Failed to retrieve information about notifications from AwesomeMiner")
 		return list()
+
+'''
+
+'''
+def load_config_file(path):
+	if not os.path.isfile(path):
+		return None
+	parser = configparser.ConfigParser()
+	parser.read(path)
+	if "AWESOMEMINER" in parser:
+		values = dict()
+		for key in parser["AWESOMEMINER"]:
+			values[key] = parser["AWESOMEMINER"][key]
+		return values
+	else:
+		return None
