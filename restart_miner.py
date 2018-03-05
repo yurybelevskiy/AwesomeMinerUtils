@@ -3,21 +3,17 @@ from pyHS100.smartdevice import SmartDeviceException
 from awesome_miner_structs import Miner
 from awesome_miner_utils import get_device_by_ip, load_config_file
 import threading
-import sys
 import socket
 import logging
 import os
-
-"""
-Gets executed as a result of "Detect Offline" AwesomeMiner trigger.
-The purpose is to restart a smart plug if associated miner is offline.
-If the failed miner doesn't have a smart plug, exits.
-"""
+import argparse
 
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-#in seconds
+""" 
+in seconds
+"""
 DELAY = 10.0
 
 def load_plug_file(path):
@@ -73,25 +69,32 @@ def restart_plug(ip_addr, delay):
 		logger.error("Failed to communicate with plug at IP address %s!", ip_addr)
 
 def main():
-	#TODO: add proper description of arguments
-	if len(sys.argv) != 3:
-		logger.error("Invalid number of arguments passed, expected 2 arguments! Exiting...")
-		sys.exit(0)
-	miner_ip = sys.argv[1]
-	logger.info("Attempting to restart miner at " + miner_ip + "...")
-	# load configuration file
-	config_values = load_config_file(sys.argv[2])
+	#command-line parameters parsing
+	parser = argparse.ArgumentParser(description="If a miner goes offline, checks whether the miner is equipped with a smart plug and restarts the plug, thus, rebooting the miner.")
+	parser.add_argument("-conf", "--config", nargs=1, type=str, required=True, help="""Path to AwesomeMiner .ini configuration file that 
+		consists of AwesomeMiner web API port number and PC name where AwesomeMiner control software is running.""")
+	parser.add_argument("-ip", "--ip_address", nargs=1, type=str, required=True, help="IP address of the machine that has turned off.") 
+	args = parser.parse_args()
+	logger.debug("Configuration file: %s, IP address: %s", args.config[0], args.ip_address[0])
+	logger.info("Attempting to restart miner at " + args.ip_address[0] + "...")
+	#load configuration file
+	config_values = load_config_file(args.config[0])
 	if config_values is None:
-		logger.error("Configuration file at %s doesn't exist or has invalid structure! Exiting...", sys.argv[2])
-		sys.exit(0)
-	if config_values["port"] is None:
-		logger.error("Configuration file at %s doesn't contain AwesomeMiner port number! Exiting...", sys.argv[2])
-		sys.exit(0)
-	if config_values["pc_name"] is None:
-		logger.error("Configuration file at %s doesn't contain PC name! Exiting...", sys.argv[2])
-		sys.exit(0)
-	miner = get_device_by_ip(miner_ip, config_values["pc_name"], int(config_values["port"]))
-	logger.debug("Retrieved miner %s using IP %s", miner.name, miner_ip)
+		logger.error("Configuration file at %s doesn't exist or has invalid structure! Exiting...", args.config[0])
+		return
+	if config_values["AWESOMEMINER"] is None:
+		logger.error("Configuration file at %s has no \"AWESOMEMINER\" parameter group! Exiting...", args.config[0])
+		return
+	port = config_values["AWESOMEMINER"]["port"]
+	pc_name = config_values["AWESOMEMINER"]["pc_name"]
+	if port is None:
+		logger.error("Configuration file at %s doesn't contain AwesomeMiner port number! Exiting...", args.config[0])
+		return
+	if pc_name is None:
+		logger.error("Configuration file at %s doesn't contain PC name! Exiting...", args.config[0])
+		return
+	miner = get_device_by_ip(args.ip_address[0], pc_name, int(port))
+	logger.debug("Retrieved miner %s using IP %s", miner.name, args.ip_address[0])
 	if miner is not None:
 		miner_plug_map = load_plug_file("C:/Users/User/Desktop/Utility_Scripts/restart_miner_executable/Miner_Plug_Map.txt")
 		if len(miner_plug_map) == 0:
@@ -104,7 +107,7 @@ def main():
 			logger.error("Plug for %s seems not be installed! Exiting...", miner.name)
 			#TODO: further handling, maybe Telegram or email
 	else:
-		logger.error("No miner with IP address %s is registered", miner_ip)
+		logger.error("No miner with IP address %s is registered", args[0].ip_address)
 
 if __name__ == "__main__":
 	main()

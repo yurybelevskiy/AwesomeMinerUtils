@@ -158,7 +158,7 @@ def collect_notifications_data(pc_name, awesome_miner_port):
 		return None
 
 def load_config_file(path):
-	""" Loads configuration .ini file that stores AwesomeMiner web API connection parameters
+	""" Loads configuration .ini file as a dictionary of dictionaries
 
 	Note: AwesomeMiner configuration file is expected to be in .ini format.
 
@@ -166,17 +166,18 @@ def load_config_file(path):
 		path: a path to configuration file
 
 	Returns:
-		a dictionary mapping configuration parameter names to their values if executed successfully, otherwise, None
+		a dictionary mapping configuration group names to dictionaries mapping parameter names to their values if executed successfully, otherwise, empty dictionary
+		If file path is invalid, returns None
 
 	"""
+	config = dict()
 	if not os.path.isfile(path):
 		return None
 	parser = configparser.ConfigParser()
 	parser.read(path)
-	if "AWESOMEMINER" in parser:
-		values = dict()
-		for key in parser["AWESOMEMINER"]:
-			values[key] = parser["AWESOMEMINER"][key]
-		return values
-	else:
-		return None
+	for group_key in parser:
+		group_dict = dict()
+		for key in parser[group_key]:
+			group_dict[key] = parser[group_key][key]
+		config[group_key] = group_dict
+	return config
