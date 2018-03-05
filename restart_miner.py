@@ -31,6 +31,7 @@ def load_plug_file(path):
 		If functions fails to find or parse given file, returns empty dictionary. 
 
 	"""
+	logger.debug("Loading miner to smart plug mapping from %s...", path)
 	ip_addresses = {}
 	try:
 		with open(path) as f:
@@ -49,7 +50,7 @@ def load_plug_file(path):
 						logger.error("Incorrect IP address format: %s", plug_ip_addr)
 	except:
 		logger.error("Miner_Plug_Map.txt not found at %s! Exiting...", os.path.dirname(os.path.realpath(__file__)))
-		sys.exit(0)
+	logger.debug("Loaded miner to smart plug mapping has %d elements", len(ip_addresses))
 	return ip_addresses
 
 def restart_plug(ip_addr, delay):
@@ -69,7 +70,7 @@ def restart_plug(ip_addr, delay):
 		logger.info("Restart successful!")
 	except SmartDeviceException:
 		#TODO: add retrying to communicate again after timeout, if after multiple retry attempts it still failes, send email or Telegram
-		logger.info("Failed to communicate with plug at IP address %s!", ip_addr)
+		logger.error("Failed to communicate with plug at IP address %s!", ip_addr)
 
 def main():
 	#TODO: add proper description of arguments
@@ -90,8 +91,11 @@ def main():
 		logger.error("Configuration file at %s doesn't contain PC name! Exiting...", sys.argv[2])
 		sys.exit(0)
 	miner = get_device_by_ip(miner_ip, config_values["pc_name"], int(config_values["port"]))
+	logger.debug("Retrieved miner %s using IP %s", miner.name, miner_ip)
 	if miner is not None:
-		miner_plug_map = load_plug_file("C:/Users/User/Desktop/Utility Scripts/restart_miner_executable/Miner_Plug_Map.txt")
+		miner_plug_map = load_plug_file("C:/Users/User/Desktop/Utility_Scripts/restart_miner_executable/Miner_Plug_Map.txt")
+		if len(miner_plug_map) == 0:
+			logger.debug("Empty miner to smart plug mapping loaded!")
 		if miner.name in miner_plug_map:
 			plug_ip = miner_plug_map[miner.name]
 			logger.info("Restarting plug with IP %s...", plug_ip)
@@ -99,10 +103,8 @@ def main():
 		else:
 			logger.error("Plug for %s seems not be installed! Exiting...", miner.name)
 			#TODO: further handling, maybe Telegram or email
-			sys.exit(0)
 	else:
 		logger.error("No miner with IP address %s is registered", miner_ip)
-		sys.exit(0)
 
 if __name__ == "__main__":
 	main()

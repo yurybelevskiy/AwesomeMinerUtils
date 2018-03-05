@@ -26,14 +26,17 @@ def log_restart(path, miner_name):
 
 	"""
 	if not os.path.isfile(path):
+		logger.debug("Creating log file %s...", path)
 		open(path, "w").close()
 	reader = csv.reader(open(path, "r"), delimiter=",")
 	log_lines = list(reader)
+	logger.debug("Log lines after read: %s", str(log_lines))
 	# add file header if file is opened first time
 	if len(log_lines)==0:
 		log_lines.append(["miner_name", "restarts"])
 	miner_name_present = False
 	for log_line in log_lines:
+		logger.debug("Log line: %s", str(log_line))
 		if miner_name == log_line[0]:
 			miner_name_present = True
 			try:
@@ -45,7 +48,8 @@ def log_restart(path, miner_name):
 				return
 	if not miner_name_present:
 		log_lines.append([miner_name, 1])
-	writer = csv.writer(open(path, "w"), delimiter=",")
+	logger.debug("Log lines before write: %s", str(log_lines))
+	writer = csv.writer(open(path, "w", newline=''), delimiter=",")
 	writer.writerows(log_lines)
 
 def main():
@@ -55,6 +59,10 @@ def main():
 		sys.exit(0)
 	#load configuration file
 	config_values = load_config_file(sys.argv[3])
+	if config_values is not None:
+		logger.debug("Configuration file is loaded!")
+	else:
+		logger.debug("Configuration file failed to load!")
 	if config_values is None:
 		logger.error("Configuration file at %s doesn't exist or has invalid structure! Exiting...", sys.argv[3])
 		sys.exit(0)
@@ -66,7 +74,10 @@ def main():
 		sys.exit(0)
 	miner = get_device_by_ip(sys.argv[2], config_values["pc_name"], int(config_values["port"]))
 	if miner is not None:
+		logger.debug("Retrieved miner %s using IP %s", miner.name, sys.argv[2])
 		log_restart(sys.argv[1], miner.name)
+	else:
+		logger.error("No miner with IP address %s is registered", miner_ip)
 
 if __name__ == "__main__":
 	main()
