@@ -5,7 +5,7 @@ import time
 import os.path
 from awesome_miner_utils import get_device_by_ip, load_config_file
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/log_offline.log',level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/log_offline.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ''' AwesomeMiner built-in delay for re-executing the action, in seconds

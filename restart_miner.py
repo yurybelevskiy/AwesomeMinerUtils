@@ -27,8 +27,11 @@ def load_plug_file(path):
 		If functions fails to find or parse given file, returns empty dictionary. 
 
 	"""
-	logger.debug("Loading miner to smart plug mapping from %s...", path)
 	ip_addresses = {}
+	if not os.path.isfile(path):
+		logger.error("File storing map to plug IP mapping at %s doesn't exist", path)
+		return ip_addresses
+	logger.debug("Loading miner to smart plug mapping from %s...", path)
 	try:
 		with open(path) as f:
 			lines = f.readlines()
@@ -73,7 +76,9 @@ def main():
 	parser = argparse.ArgumentParser(description="If a miner goes offline, checks whether the miner is equipped with a smart plug and restarts the plug, thus, rebooting the miner.")
 	parser.add_argument("-conf", "--config", nargs=1, type=str, required=True, help="""Path to AwesomeMiner .ini configuration file that 
 		consists of AwesomeMiner web API port number and PC name where AwesomeMiner control software is running.""")
-	parser.add_argument("-ip", "--ip_address", nargs=1, type=str, required=True, help="IP address of the machine that has turned off.") 
+	parser.add_argument("-ip", "--ip_address", nargs=1, type=str, required=True, help="IP address of the machine that has turned off.")
+	parser.add_argument("-map", "--miner_plug_map", nargs=1, type=str, required=True, help="""Path to file storing mapping of IP addresses from miners to smart plugs.
+		 File format is: <Miner IP> : <Plug IP> \\n""")
 	args = parser.parse_args()
 	logger.debug("Configuration file: %s, IP address: %s", args.config[0], args.ip_address[0])
 	logger.info("Attempting to restart miner at " + args.ip_address[0] + "...")
@@ -96,7 +101,7 @@ def main():
 	miner = get_device_by_ip(args.ip_address[0], pc_name, int(port))
 	logger.debug("Retrieved miner %s using IP %s", miner.name, args.ip_address[0])
 	if miner is not None:
-		miner_plug_map = load_plug_file("C:/Users/User/Desktop/Utility_Scripts/restart_miner_executable/Miner_Plug_Map.txt")
+		miner_plug_map = load_plug_file(args.map[0])
 		if len(miner_plug_map) == 0:
 			logger.debug("Empty miner to smart plug mapping loaded!")
 		if miner.name in miner_plug_map:
