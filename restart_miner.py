@@ -16,8 +16,8 @@ in seconds
 """
 DELAY = 10.0
 
-def load_plug_file(path):
-	""" Loads a mapping from miner IP addresses to smart plug IP addresses
+def load_miner_plug_map(path):
+	""" Loads a mapping from miner IP addresses to smart plug IP addresses file
 
 	Args:
 		path: path to file storing the mapping
@@ -101,7 +101,7 @@ def main():
 	miner = get_device_by_ip(args.ip_address[0], pc_name, int(port))
 	logger.debug("Retrieved miner %s using IP %s", miner.name, args.ip_address[0])
 	if miner is not None:
-		miner_plug_map = load_plug_file(args.map[0])
+		miner_plug_map = load_miner_plug_map(args.map[0])
 		if len(miner_plug_map) == 0:
 			logger.debug("Empty miner to smart plug mapping loaded!")
 		if miner.name in miner_plug_map:
