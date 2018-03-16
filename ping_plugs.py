@@ -10,7 +10,7 @@ from pprint import pformat as pf
 
 """
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/ping_plugs.log',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/GM/Desktop/Utility_Scripts/logs/ping_plugs.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def ping_plug(ip_addr):

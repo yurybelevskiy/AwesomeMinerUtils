@@ -75,7 +75,7 @@ class Ferm(GPUMiner):
 
 	NUM_GPUS = 6
 	#in MHz
-	DEFAULT_MEMORY_CLOCK = 3847
+	DEFAULT_MEMORY_CLOCK = 3802
 	GROUP = "Ferm"
 
 	def __init__(self, json):

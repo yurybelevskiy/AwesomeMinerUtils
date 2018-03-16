@@ -8,7 +8,7 @@ import logging
 import os
 import argparse
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/GM/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 """ 
@@ -101,7 +101,7 @@ def main():
 	miner = get_device_by_ip(args.ip_address[0], pc_name, int(port))
 	logger.debug("Retrieved miner %s using IP %s", miner.name, args.ip_address[0])
 	if miner is not None:
-		miner_plug_map = load_miner_plug_map(args.map[0])
+		miner_plug_map = load_miner_plug_map(args.miner_plug_map[0])
 		if len(miner_plug_map) == 0:
 			logger.debug("Empty miner to smart plug mapping loaded!")
 		if miner.name in miner_plug_map:
