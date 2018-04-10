@@ -42,16 +42,17 @@ def main():
 		return
 	# collect information about Pangolins
 	gpu_miners = collect_devices_from_groups(pc_name, int(port), [Pangolin.GROUP, Ferm.GROUP])
+	print("Total %d miners collected" % len(gpu_miners))
 	if len(gpu_miners):
 		print("********** FAULTY GPU MINERS **********")
 	for gpu_miner in gpu_miners:
 		if gpu_miner.is_running():
 			if not gpu_miner.all_devices_running():
 				print(gpu_miner.name + " has only " + str(gpu_miner.device_list.get_num_devices()) + " GPUs running")
-			faulty_gpus = gpu_miner.get_reset_gpus()
-			if len(faulty_gpus) > 0:
-				gpu_names = list(map(lambda x: x.name, faulty_gpus))
-				print(gpu_miner.name + " has GPUs " + (",".join(gpu_names) if len(gpu_names) > 1 else gpu_names[0]) + " running on default memory clock")
+			reset_gpus = gpu_miner.get_reset_gpus()
+			if len(reset_gpus) > 0:
+				gpu_names = list(map(lambda x: x.name, reset_gpus))
+				print(gpu_miner.name + " has " + (",".join(gpu_names) if len(gpu_names) > 1 else gpu_names[0]) + " running on default memory clock")
 		else:
 			print(gpu_miner.name + " - " + gpu_miner.status_info.status_display)
 	# collect notifications information

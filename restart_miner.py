@@ -8,7 +8,7 @@ import logging
 import os
 import argparse
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/GM/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p', filename='C:/Users/User/Desktop/Utility_Scripts/logs/restart_miner.log',level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 """ 

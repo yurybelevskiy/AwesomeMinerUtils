@@ -82,10 +82,10 @@ class Ferm(GPUMiner):
 		super(Ferm, self).__init__(json)
 
 	def get_reset_gpus(self):
-		return super(Pangolin, self).get_reset_gpus(Ferm.DEFAULT_MEMORY_CLOCK)
+		return super(Ferm, self).get_reset_gpus(Ferm.DEFAULT_MEMORY_CLOCK)
 
 	def all_devices_running(self):
-		return super(Pangolin, self).all_devices_running(Ferm.NUM_GPUS)
+		return super(Ferm, self).all_devices_running(Ferm.NUM_GPUS)
 
 
 class ASICMiner(Miner):

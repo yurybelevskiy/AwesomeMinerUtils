@@ -1,4 +1,5 @@
 from awesome_miner_structs import Miner, Pangolin, Ferm, ASICMiner, NotificationList
+from enum import Enum
 import logging
 import requests
 import json
@@ -12,7 +13,16 @@ Helper file that contains utility functions to intetact with AwesomeMiner Web AP
 
 logger = logging.getLogger(__name__)
 
-def collect_all_devices(pc_name, awesome_miner_port):
+
+"""
+
+"""
+class DeviceType(Enum):
+	GPU = 0
+	ASIC = 1
+	ALL = 2
+
+def collect_all_devices(pc_name, awesome_miner_port, device_type=DeviceType.ALL):
 	""" Collects all miners registered with AwesomeMiner instance
 
 	Args:
@@ -32,7 +42,16 @@ def collect_all_devices(pc_name, awesome_miner_port):
 		for miner_group in miner_groups:
 			miner_list = miner_group['minerList']
 			for miner_json in miner_list:
-				miner = Miner(miner_json)
+				if device_type == DeviceType.ALL:
+					miner = Miner(miner_json)
+				elif device_type == DeviceType.GPU:
+					#TODO: determine that device is of type GPU
+					#miner = GPUMiner(miner_json)
+					pass
+				elif device_type == DeviceType.ASIC:
+					#TODO: determine that device is of type ASIC
+					#miner = ASICMiner(miner_json)
+					pass
 				miners.append(miner)
 		return miners
 	else:
@@ -74,11 +93,9 @@ def collect_devices_from_groups(pc_name, awesome_miner_port, groups):
 						else:
 							miner = ASIC(miner_json)
 						miners.append(miner)
-					return miners
-		logger.error("No miner groups named \"%s\"", ",".join(groups))
 	else:
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)
-		return miners
+	return miners
 
 def get_device_by_ip(ip_addr, pc_name, awesome_miner_port):
 	""" Looks up information about miner using it's IP address 
