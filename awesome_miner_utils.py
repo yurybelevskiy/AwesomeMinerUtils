@@ -1,4 +1,4 @@
-from awesome_miner_structs import Miner, Pangolin, Ferm, ASICMiner, NotificationList
+from awesome_miner_structs import Miner, Pangolin, Ferm, GPUMiner, ASICMiner, NotificationList
 from enum import Enum
 import logging
 import requests
@@ -20,9 +20,10 @@ logger = logging.getLogger(__name__)
 class DeviceType(Enum):
 	GPU = 0
 	ASIC = 1
-	ALL = 2
+	PGA = 2
+	ALL = 3
 
-def collect_all_devices(pc_name, awesome_miner_port, device_type=DeviceType.ALL):
+def collect_devices_of_type(pc_name, awesome_miner_port, device_type=DeviceType.ALL):
 	""" Collects all miners registered with AwesomeMiner instance
 
 	Args:
@@ -42,17 +43,18 @@ def collect_all_devices(pc_name, awesome_miner_port, device_type=DeviceType.ALL)
 		for miner_group in miner_groups:
 			miner_list = miner_group['minerList']
 			for miner_json in miner_list:
+				miner = None
 				if device_type == DeviceType.ALL:
 					miner = Miner(miner_json)
-				elif device_type == DeviceType.GPU:
-					#TODO: determine that device is of type GPU
-					#miner = GPUMiner(miner_json)
-					pass
+				elif device_type == DeviceType.GPU:t_all_t
+					if miner_json['hasGpu'] and not miner_json['hasAsic'] and not miner_json['hasPga']: 
+						miner = GPUMiner(miner_json)
 				elif device_type == DeviceType.ASIC:
-					#TODO: determine that device is of type ASIC
-					#miner = ASICMiner(miner_json)
-					pass
-				miners.append(miner)
+					if miner_json['hasAsic'] and not miner_json['hasGpu'] and not miner_json['hasPga']:
+						miner = ASICMiner(miner_json)
+				#TODO: add PGA device type
+				if miner:
+					miners.append(miner)
 		return miners
 	else:
 		logger.error("Failed to connect to Awesome Miner at %s!", request_url)

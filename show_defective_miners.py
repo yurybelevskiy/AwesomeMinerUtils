@@ -42,7 +42,6 @@ def main():
 		return
 	# collect information about Pangolins
 	gpu_miners = collect_devices_from_groups(pc_name, int(port), [Pangolin.GROUP, Ferm.GROUP])
-	print("Total %d miners collected" % len(gpu_miners))
 	if len(gpu_miners):
 		print("********** FAULTY GPU MINERS **********")
 	for gpu_miner in gpu_miners:
