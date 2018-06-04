@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S
 logger = logging.getLogger(__name__)
 
 ''' AwesomeMiner built-in delay for re-executing the action, in seconds
-For example, if user defined delay is 90 seconds for "Wait" action, AwesomeMiner will re-execute action in 90_96=186 seconds
+For example, if user defined delay is 90 seconds for "Wait" action, AwesomeMiner will re-execute action in 90+96=186 seconds
 '''
 AM_DELAY = 96
 
